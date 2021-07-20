@@ -1,38 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const data = fs.readFileSync('./database.json');
+const conf = JSON.parse(data);
+const mysql = require('mysql2');
+
+const db = mysql.createConnection({
+    host: conf.host,
+    user: conf.user,
+    password: conf.password,
+    port: conf.port,
+    database: conf.database
+});
+
 app.get('/api/customers', (req, res) => {
-    res.send([
-        {
-            'id': 1,
-            'image': 'http://placeimg.com/64/64/1',
-            'name': "김팝송",
-            'birthday': '990101',
-            'gender': '남자',
-            'job': '대학생'
-        },
-        {
-            'id': 2,
-            'image': 'http://placeimg.com/64/64/2',
-            'name': "김밥",
-            'birthday': '910405',
-            'gender': '남자',
-            'job': '백수'
-        },
-        {
-            'id': 3,
-            'image': 'http://placeimg.com/64/64/3',
-            'name': "이백",
-            'birthday': '011205',
-            'gender': '여자',
-            'job': '교사'
+    db.query(
+        'SELECT * FROM CUSTOMER',
+        (err, rows, fields) => {
+            if (err) {
+                throw err;
+            } else {
+                res.send(rows);
+            }
         }
-    ]);
+    );
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
