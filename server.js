@@ -50,10 +50,10 @@ app.post('/api/customers', upload.single('image'), (req, res) => {
     let parms = [image, name, birthday, gender, job];
     db.query(sql,parms,
         (err, rows,fields) => {
-           // console.log(image);
+            // console.log(image);
             res.send(rows);
-            console.log(err);
-            console.log(rows);
+            // console.log(err);
+            // console.log(rows);
         })
 });
 
