@@ -28,7 +28,7 @@ app.use(cors({origin:'http://localhost:3000/'}));
 
 app.get('/api/customers', (req, res) => {
     db.query(
-        'SELECT * FROM CUSTOMER',
+        'SELECT * FROM CUSTOMER WHERE isDeleted = 0',
         (err, rows, fields) => {
             if (err) {
                 throw err;
@@ -41,7 +41,7 @@ app.get('/api/customers', (req, res) => {
 
 
 app.post('/api/customers', upload.single('image'), (req, res) => {
-    let sql = 'INSERT INTO CUSTOMER VALUES (null,?,?,?,?,?)';
+    let sql = 'INSERT INTO CUSTOMER VALUES (null,?,?,?,?,?, now(), 0)';
     let image = '/image/' + req.file.filename;
     let name = req.body.name;
     let birthday = req.body.birthday;
@@ -50,11 +50,17 @@ app.post('/api/customers', upload.single('image'), (req, res) => {
     let parms = [image, name, birthday, gender, job];
     db.query(sql,parms,
         (err, rows,fields) => {
-            // console.log(image);
             res.send(rows);
-            // console.log(err);
-            // console.log(rows);
         })
 });
+
+app.delete('/api/customers/:id', (req,res) => {
+    let sql = 'UPDATE CUSTOMER SET isDeleted = 1 WHERE id = ?';
+    let params = [req.params.id];
+    db.query(sql, params,
+        (err, rows, fields) => {
+            res.send(rows);
+        })
+})
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
